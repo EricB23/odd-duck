@@ -225,10 +225,9 @@ for (let i = 0; i < details.length; i++) {
     }
   });
 }
-
-pageLoad();
-
 commentBox.addEventListener('input', function () {
   settings.comment = commentBox.value;
   saveSettings();
 });
+
+pageLoad();
