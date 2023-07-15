@@ -2,7 +2,7 @@
 
 let Container = document.querySelector('section');
 
-let Button = document.querySelector('section' + 'div');
+// let Button = document.querySelector('section' + 'div');
 
 let image1 = document.querySelector('section img:first-child');
 
@@ -41,9 +41,9 @@ function productRenders() {
   let product1 = state.indexArray.shift();
   let product2 = state.indexArray.shift();
   let product3 = state.indexArray.shift();
-  console.log(state.produtsArray, product1);
+
   image1.src = state.produtsArray[product1].src;
-  console.log(image1);
+
   image2.src = state.produtsArray[product2].src;
   image3.src = state.produtsArray[product3].src;
 
@@ -51,11 +51,22 @@ function productRenders() {
   image2.alt = state.produtsArray[product2].name;
   image3.alt = state.produtsArray[product3].name;
 
-  state.produtsArray[product1].views++;
-  state.produtsArray[product2].views++;
-  state.produtsArray[product3].views++;
+  let localinfo = JSON.parse(localStorage.getItem('myProd'));
+
+  if (localinfo) {
+    localinfo[product1].views++;
+    localinfo[product2].views++;
+    localinfo[product3].views++;
+    localStorage.setItem('myProd', JSON.stringify(localinfo));
+  } else {
+    state.produtsArray[product1].views++;
+    state.produtsArray[product2].views++;
+    state.produtsArray[product3].views++;
+  }
 }
 function newProductClick(event) {
+  let localinfo = JSON.parse(localStorage.getItem('myProd'));
+
   if (event.target === Container) {
     alert('Please click on a image');
   }
@@ -65,16 +76,23 @@ function newProductClick(event) {
   let productClick = event.target.alt;
   for (let i = 0; i < state.produtsArray.length; i++) {
     if (productClick === state.produtsArray[i].name) {
+      if (localinfo) {
+        localinfo[i].clicks++;
+        localStorage.setItem('myProd', JSON.stringify(localinfo));
+      }
       state.produtsArray[i].clicks++;
-
       break;
     }
   }
   if (clicks === maxClicks) {
     Container.removeEventListener('click', newProductClick);
 
+    if (!localinfo) {
+      let stringifiedProd = JSON.stringify(state.produtsArray);
+
+      localStorage.setItem('myProd', stringifiedProd);
+    }
     renderChart();
-    Container.className = 'no-voting';
   } else {
     productRenders();
   }
@@ -83,13 +101,14 @@ function renderChart() {
   let productName = [];
   let productClick = [];
   let productView = [];
+  let localinfo = JSON.parse(localStorage.getItem('myProd'));
 
-  for (let i = 0; i < state.produtsArray.length; i++) {
-    productName.push(state.produtsArray[i].name);
+  for (let i = 0; i < localinfo.length; i++) {
+    productName.push(localinfo[i].name);
 
-    productClick.push(state.produtsArray[i].clicks);
+    productClick.push(localinfo[i].clicks);
 
-    productView.push(state.produtsArray[i].views);
+    productView.push(localinfo[i].views);
   }
 
   const chartData = {
@@ -166,69 +185,63 @@ state.produtsArray.push(
   shark,
   sweep
 );
-console.log(state.produtsArray);
 
 productRenders();
 Container.addEventListener('click', newProductClick);
 
-let settings = {
-  open: null,
-  comment: '',
-};
+// let settings = {
+//   open: null,
+//   comment: '',
+// };
 
-let details = document.getElementsByTagName('details');
-let commentBox = document.getElementById('commentBox');
-let openDetail = null;
+// let details = document.getElementsByTagName('details');
+// let commentBox = document.getElementById('commentBox');
+// let openDetail = null;
 
-function loadSettings() {
-  let getSettings = localStorage.getItem('settings');
-  if (getSettings) {
-    console.log(getSettings);
-    settings = JSON.parse(getSettings);
-    console.log(settings);
-  }
-}
+// function loadSettings() {
+//   let getSettings = localStorage.getItem('settings');
+//   if (getSettings) {
+//     console.log(getSettings);
+//     settings = JSON.parse(getSettings);
+//     console.log(settings);
+//   }
+// }
 
-function saveSettings() {
-  let stringify = JSON.stringify(settings);
-  localStorage.setItem('settings', stringify);
-  console.log(typeof stringify);
-}
+// function saveSettings() {
+//   let stringify = JSON.stringify(settings);
+//   localStorage.setItem('settings', stringify);
+//   console.log(typeof stringify);
+// }
 
-function pageLoad() {
-  let savedSettings = localStorage.getItem('settings');
-  if (!savedSettings) {
-    return;
-  }
+// function pageLoad() {
+//   let savedSettings = localStorage.getItem('settings');
+//   if (!savedSettings) {
+//     return;
+//   }
 
-  loadSettings();
-  if (settings.open !== null) {
-    details[settings.open].setAttribute('open', 'open');
-  }
-  commentBox.value = settings.comment;
-}
+//   loadSettings();
+//   if (settings.open !== null) {
+//     details[settings.open].setAttribute('open', 'open');
+//   }
+//   commentBox.value = settings.comment;
+// }
 
-for (let i = 0; i < details.length; i++) {
-  details[i].addEventListener('click', function () {
-    if (settings.open === i) {
-      settings.open = null;
-      saveSettings();
-      return;
-    }
-    openDetail = i;
-    settings.open = i;
-    saveSettings();
-    for (let j = 0; j < details.length; j++) {
-      if (j !== openDetail) {
-        details[j].removeAttribute('open');
-      }
-    }
-  });
-}
+// for (let i = 0; i < details.length; i++) {
+//   details[i].addEventListener('click', function () {
+//     if (settings.open === i) {
+//       settings.open = null;
+//       saveSettings();
+//       return;
+//     }
+//     openDetail = i;
+//     settings.open = i;
+//     saveSettings();
+//     for (let j = 0; j < details.length; j++) {
+//       if (j !== openDetail) {
+//         details[j].removeAttribute('open');
+//       }
+//     }
+//   });
+// }
 
-pageLoad();
-
-commentBox.addEventListener('input', function () {
-  settings.comment = commentBox.value;
-  saveSettings();
-});
+// pageLoad();
